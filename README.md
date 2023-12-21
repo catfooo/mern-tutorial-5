@@ -198,3 +198,8 @@ Make sure to adjust the route in the navigate statement according to your applic
 
 ##### i didnt tried this, bcs if this is the case, then probably the video stated this
 ##### after they proceed? so ill watch the video first, and will come back if i need.
+
+
+##### so... the reason i cant register is ive already registered, 
+##### and the local stroage already has token and stuff stored!
+##### to get rid of that, need to make logout feature <<---- current thing at the video!!!
