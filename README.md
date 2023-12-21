@@ -1,62 +1,200 @@
-#### the problem
+###### i guess i got what is the problem! i could manage myself to ask this to chatgpt
 
-when user goes to http://localhost:3000/ and click register,
-or when user goes to http://localhost:3000/register directly,
-
-the page moves to localhost:3000,
-instead of showing input field that supposed to be displayed /register
-
-#### possible hint
-for this repo, i am not using cors that handles middleware.
-but will this block me to get to the certain route? i want to test this by applying cors
-
-also, im unsure with that i made correct route for /register.
-it is exactly same from the video https://www.youtube.com/watch?v=mvfsC66xqj0 
-'hook up the register form' and the guy there seemed to have no problem with 
-have access to register page, but that was not happening for me. 
-i asked this at chatgpt and it gave me to have
-------------
-router.post('/register', registerUser); // Place this before other routes
-router.post('/login', loginUser);
-router.get('/me', protect, getMe);
 -------------
-instead, in context of 
---------------
-It seems like your /register route is defined correctly in your userRoutes.js file. The issue might be related to the order in which your routes are defined or how your application is handling routes in general.
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Header from './components/Header';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
-Here are a few things you can check:
+function App() {
+  return (
+    <>
+    <Router>
+    <div className='container'>
+      <Header />
+      <Routes>
+        <Route path='/' element={<Dashboard />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+      </Routes>
+    </div>
+    </Router>
+    <ToastContainer />
+    </>
+  );
+}
 
-Route Order:
-Ensure that the /register route is defined before other routes that might match a similar pattern. Express evaluates routes in the order they are defined, so if you have a generic route like router.post('/', registerUser), it might be catching requests before they reach /register.
+export default App;
+--------------------
 
-Example:
+
+------------------------
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { FaUser } from 'react-icons/fa'
+import { register, reset } from '../features/auth/authSlice'
+import Spinner from '../components/Spinner'
+
+function Register() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    password2: ''
+  })
+
+  const { name, email, password, password2 } = formData
+
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth)
+
+  useEffect(() => {
+    if(isError) {
+      toast.error(message)
+    }
+
+    if(isSuccess || user) {
+      navigate('/')
+    }
+
+    dispatch(reset())
+
+  }, [user, isError, isSuccess, message, navigate, dispatch])
+
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+       ...prevState,
+       [e.target.name]: e.target.value
+    }))
+  }
+
+  const onSubmit = (e) => {
+    e.preventDefault()
+
+    if(password !== password2) {
+      toast.error('Passwords do not match')
+    } else {
+      const userData = {
+        name,
+        email,
+        password,
+      }
+
+      dispatch(register(userData))
+    }
+  }
+
+  if(isLoading) {
+    return <Spinner />
+  }
+
+  return <>
+    <section className="heading">
+        <h1>
+          <FaUser /> Register
+        </h1>
+        <p>Please create an account</p>
+    </section>
+    
+    <section className="form">
+        <form onSubmit={onSubmit}>
+            <div className="form-group">
+            <input 
+              type="text" 
+              className="form-control" 
+              id='name' 
+              name='name' 
+              value={name} 
+              placeholder='Enter your name' 
+              onChange={onChange} 
+            />
+            </div>     
+            <div className="form-group">
+            <input 
+              type="email" 
+              className="form-control" 
+              id='email' 
+              name='email' 
+              value={email} 
+              placeholder='Enter your email' 
+              onChange={onChange} 
+            />
+            </div>  
+            <div className="form-group">
+            <input 
+              type="password" 
+              className="form-control" 
+              id='password' 
+              name='password' 
+              value={password} 
+              placeholder='Enter password' 
+              onChange={onChange} 
+            />
+            </div>     
+            <div className="form-group">
+            <input 
+              type="password" 
+              className="form-control" 
+              id='password2' 
+              name='password2' 
+              value={password2} 
+              placeholder='Confirm password' 
+              onChange={onChange} 
+            />
+            </div>  
+            <div className="form-group">
+                <button type="submit" className='btn btn-block'>Submit</button>
+            </div>      
+        </form>
+    </section>
+  </>
+}
+
+export default Register
+-------------------
+
+
+
+if I click register at app(/), it should lead me to /register.
+but once, it seems to show me /register, like 1 second,
+and then, it moves to / route.
+
+how can I fix this? I want to see /register
+
+ChatGPT
+It looks like you are using React Router for navigation in your application. The issue you're facing could be related to the fact that the navigate('/') statement in the Register component is redirecting to the home route ('/') after a successful registration.
+
+To fix this issue, you can update the navigate('/') statement to navigate('/login') or any other route you want to redirect to after a successful registration. If you want to stay on the /register page, you can remove the navigate statement altogether.
+
+Here's the modified useEffect block in your Register component:
+
 javascript
 Copy code
-router.post('/register', registerUser); // Place this before other routes
-router.post('/login', loginUser);
-router.get('/me', protect, getMe);
-----------
+useEffect(() => {
+  if (isError) {
+    toast.error(message);
+  }
 
-so i tried it, but still occuring same problem, so i currently reverted it. 
+  if (isSuccess || user) {
+    // Update the route you want to navigate to after successful registration
+    // For example, navigate to the login page:
+    navigate('/login');
+  }
 
+  dispatch(reset());
+}, [user, isError, isSuccess, message, navigate, dispatch]);
+With this change, after a successful registration, it will navigate to the /login route. If you want to stay on the /register route, you can remove the navigate statement.
 
-#### actionable plan to likely solve the problem
-test this repo with cors -> i made repo 7 and tested cors there. err not solved
-
-
-
-
-or take a look at more about routes -> 
-what i can see currently is this.
-router.post('/', registerUser)
-will this let me go to /register? so ive changed that / to /register and err not solved.
-i think i might dont understand much of how set route properly.
-if i become sure that i have knowledge, then probably that will be the best moment
-for take a look at this err again.
-im currently rewatching week 14s code session video, about route setting, 
-so might this can be solved...? 
+Make sure to adjust the route in the navigate statement according to your application's navigation flow.
 
 
 
-
-or... idk xD might be nice to get help with this!!!
+##### i didnt tried this, bcs if this is the case, then probably the video stated this
+##### after they proceed? so ill watch the video first, and will come back if i need.
