@@ -41,6 +41,22 @@ so i tried it, but still occuring same problem, so i currently reverted it.
 
 
 #### actionable plan to likely solve the problem
-test this repo with cors
-or take a look at more about routes
+test this repo with cors -> i made repo 7 and tested cors there. err not solved
+
+
+
+
+or take a look at more about routes -> 
+what i can see currently is this.
+router.post('/', registerUser)
+will this let me go to /register? so ive changed that / to /register and err not solved.
+i think i might dont understand much of how set route properly.
+if i become sure that i have knowledge, then probably that will be the best moment
+for take a look at this err again.
+im currently rewatching week 14s code session video, about route setting, 
+so might this can be solved...? 
+
+
+
+
 or... idk xD might be nice to get help with this!!!
